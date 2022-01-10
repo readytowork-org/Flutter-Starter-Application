@@ -1,8 +1,9 @@
 import 'package:basic_app/Screens/home_sreen.dart';
 import 'package:basic_app/Screens/login_screen.dart';
+import 'package:basic_app/Screens/search_screen.dart';
 import 'package:basic_app/utilities/routes.dart';
+import 'package:basic_app/widgets/themes.dart';
 import "package:flutter/material.dart";
-import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,11 +22,7 @@ class MyApp extends StatelessWidget {
       //to remove debugging banner in app screen
       // debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-        fontFamily: GoogleFonts.lato().fontFamily,
-        // primaryTextTheme: GoogleFonts.latoTextTheme()
-      ),
+      theme: Themes.lightThemeValue(),
       //initial route to display, same as react-native
       initialRoute: RoutesAvailable.homeRoute,
       // darkTheme: ThemeData(brightness: Brightness.dark),
@@ -33,7 +30,7 @@ class MyApp extends StatelessWidget {
         // route '/' means Home or main page, either put home: Home() or route '/'
         RoutesAvailable.loginRoute: (context) => LoginScreen(),
         RoutesAvailable.homeRoute: (context) => Home(),
-        '/login': (context) => LoginScreen(),
+        RoutesAvailable.searchRoute: (context) => SearchScreen(),
       },
     );
   }

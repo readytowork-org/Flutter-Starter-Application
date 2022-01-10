@@ -7,7 +7,7 @@ class DrawerList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: Colors.red,
+        color: Colors.deepPurpleAccent,
         child: ListView(
           // padding: EdgeInsets.zero,
           children: const [
@@ -15,7 +15,9 @@ class DrawerList extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 margin: EdgeInsets.zero,
                 child: UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(color: Colors.deepPurpleAccent),
                   currentAccountPicture: CircleAvatar(
+                      radius: 15,
                       backgroundImage:
                           AssetImage('assets/images/login_image.jpg')),
                   accountEmail: Text('pratik.adhikari@readytowork.jp'),
