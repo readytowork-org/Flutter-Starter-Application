@@ -5,7 +5,7 @@ class Themes {
   static ThemeData lightThemeValue() {
     return ThemeData(
         primarySwatch: Colors.deepPurple,
-        fontFamily: GoogleFonts.lato().fontFamily,
+        fontFamily: GoogleFonts.poppins().fontFamily,
         // primaryTextTheme: GoogleFonts.latoTextTheme()
         appBarTheme: const AppBarTheme(
             // color: Colors.white,

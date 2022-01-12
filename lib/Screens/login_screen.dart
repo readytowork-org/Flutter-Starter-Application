@@ -1,5 +1,6 @@
 import 'package:basic_app/utilities/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -19,7 +20,12 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         changeButton = true;
       });
-      await Future.delayed(Duration(seconds: 1));
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('counter', name);
+
+      await Future.delayed(const Duration(seconds: 1));
+
       await Navigator.pushNamed(context, RoutesAvailable.homeRoute);
       setState(() {
         changeButton = false;
