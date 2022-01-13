@@ -1,13 +1,13 @@
 import 'dart:convert';
+
+import 'package:basic_app/components/list_items.dart';
 import 'package:basic_app/models/movies_model.dart';
-import 'package:basic_app/utilities/routes.dart';
+import 'package:http/http.dart' as http;
 import 'package:basic_app/widgets/drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
-  runApp(Home());
+  runApp(const Home());
 }
 
 class Home extends StatefulWidget {
@@ -18,16 +18,34 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<MoviesModal> data = [];
+  final ScrollController _scrollController = new ScrollController();
+  List<Results> data = [];
   String name = "";
+  int pageValue = 1;
 
   @override
   void initState() {
     super.initState();
     print("called on statefulwidget st homescreen");
     popularMovies();
+    _scrollController.addListener(() {
+      print(_scrollController.position.pixels);
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        // setState(() {
+        //   pageValue++;
+        // });
+        // popularMovies();
+      }
+    });
     // getAsyncStorageValue();
     // futureAlbum = fetchAlbum();
+  }
+
+  //dispose method use to release the memory allocated to variables when state object is removed
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
   }
 
   // Future<void> getAsyncStorageValue() async {
@@ -39,29 +57,55 @@ class _HomeState extends State<Home> {
   // }
 
   Future<void> popularMovies() async {
-    final popularMoviesList =
-        await rootBundle.loadString("assets/apidata/popular_movies.json");
-    final decodedPopularMovies = jsonDecode(popularMoviesList);
+    // Fetching data from local json file
+    // 1. Load the string using rootBundle.loadString(source)
+    // 2. decode the loaded file using jsonDecode(source)
+    // 3. select the required data and load into the list
 
-    var decodedPopularMoviesResults = decodedPopularMovies['results'];
-    print(decodedPopularMoviesResults);
+    // final popularMoviesList =
+    //     await rootBundle.loadString("assets/apidata/popular_movies.json");
+    // final decodedPopularMovies = jsonDecode(popularMoviesList);
 
-    List<MoviesModal> list = List.from(decodedPopularMoviesResults)
-        .map<MoviesModal>((e) => MoviesModal.fromJson(e))
-        .toList();
+    // var decodedPopularMoviesResults = decodedPopularMovies['results'];
+    // print(decodedPopularMoviesResults);
 
-    setState(() {
-      data = list;
-    });
+    // List<Results> list = List.from(decodedPopularMoviesResults)
+    //     .map<Results>((e) => Results.fromJson(e))
+    //     .toList();
 
-    // final response = await http.get(Uri.https('api.themoviedb.org',
-    //     '/3/movie/popular?api_key=278fa03b46b62d7205f7078755eef745&language=en-US&page=1'));
-    // headers: {
-    //   'Content-Type': 'application/json',
-    //   'Accept': 'application/json',
-    //   'Authorization': 'Bearer $token',
+    // setState(() {
+    //   data = list;
     // });
+
+    print('the page value is $pageValue');
+
+    final response = await http.get(
+        Uri.parse(
+            'https://api.themoviedb.org/3/movie/popular?api_key=278fa03b46b62d7205f7078755eef745&language=en-US&page=$pageValue'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          // 'Accept': 'application/json',
+          // 'Authorization':
+          //     'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNzhmYTAzYjQ2YjYyZDcyMDVmNzA3ODc1NWVlZjc0NSIsInN1YiI6IjYxZDcwOWI1YmIyNjAyMDA1YjljMGU1NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.R8CYVLUkqVreDKEyVmfw084UZ7Ftov_XSm6CxmBFJzA',
+        });
     // print('call garepaxi ko response $response');
+    if (response.statusCode == 200) {
+      final decodedPopularMovies = jsonDecode(response.body);
+
+      var decodedPopularMoviesResults = decodedPopularMovies['results'];
+      // print(decodedPopularMoviesResults);
+
+      List<Results> list =
+          List.from(decodedPopularMoviesResults).map<Results>((e) {
+        e['poster_path'] = "https://image.tmdb.org/t/p/w500" + e['poster_path'];
+        // print(e['poster_path']);
+        return Results.fromJson(e);
+      }).toList();
+
+      setState(() {
+        data = list;
+      });
+    }
     // .then((value) => print('value $value'))
     // .catchError((onError) => print('onError $onError'));
   }
@@ -93,123 +137,46 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: SafeArea(
-        child: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 20, bottom: 10, left: 20),
-                child: const Text("Popular",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              ),
-              Flexible(
-                  child: RefreshIndicator(
-                onRefresh: () async {
-                  setState(() {});
-                },
-                child: ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.all(10),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: InkWell(
-                            splashColor: Colors.grey,
-                            onTap: () => print("Container pressed"),
-                            child: Row(
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      child: Image.network(
-                                        data[index].posterPath.toString(),
-                                        height: 150,
-                                        width: 130,
-                                        fit: BoxFit.fill,
-                                      ),
-                                    )),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data[index].originalTitle ?? "",
-                                          style: const TextStyle(
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.bold),
-                                          // textDirection: TextDirection.rtl,
-                                          // textAlign: TextAlign.left
-                                          // style: TextStyle
-                                        ),
-                                        Text(
-                                          data[index].overview ?? "",
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 3,
-                                          // textAlign: TextAlign.left
-                                          // style: TextStyle
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            // const SizedBox(height: 20),
-                                            Text(
-                                              "Rating:  " +
-                                                  data[index]
-                                                      .voteAverage
-                                                      .toString(),
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            const Icon(
-                                              Icons.star,
-                                              color: Colors.deepOrange,
-                                            ),
-                                          ],
-                                        ),
-                                        Text(
-                                          data[index]
-                                              .originalLanguage
-                                              .toString()
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-              ))
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 20, bottom: 10, left: 20),
+              child: const Text("Popular",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            Flexible(
+                child: RefreshIndicator(
+              onRefresh: () async {
+                setState(() {});
+              },
+              child: data.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      controller: _scrollController,
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        return ListItems(
+                            imagePath: data[index].posterPath.toString(),
+                            movieName: data[index].originalTitle.toString(),
+                            movieDetails: data[index].overview.toString(),
+                            movieRating: data[index].voteAverage.toString(),
+                            movieLanguage: data[index]
+                                .originalLanguage
+                                .toString()
+                                .toUpperCase());
+                      }),
+            ))
+          ],
         ),
       ),
       // RefreshIndicator(
       //   onRefresh: () async {
       //     setState(() {});
       //   },
-      //   child: data.isEmpty
-      //       ? const Center(child: CircularProgressIndicator())
-      //       :
+      // child: data.isEmpty
+      //     ? const Center(child: CircularProgressIndicator())
+      //     :
       //       // Using ListView
       //       //     ListView.builder(
       //       //         padding: const EdgeInsets.all(10),

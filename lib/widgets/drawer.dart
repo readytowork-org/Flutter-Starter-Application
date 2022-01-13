@@ -1,4 +1,5 @@
 import 'package:basic_app/components/alert_dialog.dart';
+import 'package:basic_app/utilities/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +13,7 @@ class DrawerList extends StatefulWidget {
 }
 
 class _DrawerListState extends State<DrawerList> {
-  String _image = "";
+  final String _image = "";
 
   Future<void> imgFromCamera() async {
     try {
@@ -40,64 +41,50 @@ class _DrawerListState extends State<DrawerList> {
     }
   }
 
-  void showSelectOptions(context) {
+  void showSelectOptions(primaryContext) {
     showCupertinoModalPopup(
-        context: context,
-        builder: (context) => CupertinoActionSheet(
+        context: primaryContext,
+        builder: (primaryContext) => CupertinoActionSheet(
               actions: [
                 CupertinoActionSheetAction(
                     child: const Text('Take a Photo'),
                     onPressed: () async {
-                      // Navigator.pop(context);
-                      // imgFromCamera();
+                      Navigator.pop(primaryContext);
+                      imgFromCamera();
                     }),
                 CupertinoActionSheetAction(
                     child: const Text('Choose From Gallery'),
                     onPressed: () async {
                       var permission = await Permission.camera.request();
                       print("the permission result is $permission");
+                      Navigator.pop(primaryContext);
                       if (permission == PermissionStatus.permanentlyDenied ||
                           permission == PermissionStatus.denied) {
-                        Navigator.pop(context);
-                        ShowDialogBox.dialogBoxes(context, "Permission Denied",
-                            "Do you want to open Settings?", () {
-                          openAppSettings();
-                          Navigator.pop(context);
-                        }, () {
-                          Navigator.pop(context);
-                        });
-                        // showDialog(
-                        //     context: context,
-                        //     builder: (context) => AlertDialog(
-                        //             title: const Text('Permission Denied'),
-                        //             content: const Text(
-                        //                 "Do you want to open Settings?"),
-                        //             actions: [
-                        //               TextButton(
-                        //                   child: const Text('Yes'),
-                        //                   onPressed: () {
-                        //                     openAppSettings();
-                        //                     Navigator.pop(context);
-                        //                   }),
-                        //               TextButton(
-                        //                   child: const Text('No'),
-                        //                   onPressed: () =>
-                        //                       Navigator.pop(context)),
-                        //             ]));
+                        ShowDialogBox.dialogBoxes(
+                            context: context,
+                            alertTitle: "Permission Denied",
+                            alertMessage: "Do you want to open Settings?",
+                            onPressYesButton: () {
+                              openAppSettings();
+                              Navigator.pop(context);
+                            },
+                            onPressNoButton: () {
+                              Navigator.pop(context);
+                            });
                       } else if (permission == PermissionStatus.granted) {
-                        Navigator.pop(context);
                         imgFromGallery();
                       } else {
-                        showDialog(
+                        ShowDialogBox.dialogBoxes(
                             context: context,
-                            builder: (context) => const AlertDialog(
-                                    title: Text(
-                                        'Feature restricted in your device'),
-                                    content: Text(""),
-                                    actions: [
-                                      Text('Yes'),
-                                      Text('No'),
-                                    ]));
+                            alertTitle: "Restricted",
+                            alertMessage:
+                                "This feature restricted in your device",
+                            onPressYesButton: () {
+                              Navigator.pop(context);
+                            },
+                            onPressNoButton: () {
+                              Navigator.pop(context);
+                            });
                       }
                     })
               ],
@@ -120,7 +107,8 @@ class _DrawerListState extends State<DrawerList> {
                       const BoxDecoration(color: Colors.deepPurpleAccent),
                   currentAccountPicture: GestureDetector(
                     onTap: () {
-                      showSelectOptions(context);
+                      BuildContext primaryContext = context;
+                      showSelectOptions(primaryContext);
                     },
                     child: const CircleAvatar(
                         radius: 15,
@@ -130,13 +118,18 @@ class _DrawerListState extends State<DrawerList> {
                   accountEmail: const Text('pratik.adhikari@readytowork.jp'),
                   accountName: const Text('Pratik Adhikari'),
                 )),
-            const ListTile(
-              leading: Icon(
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(
+                    context, RoutesAvailable.populatTvShowsRoute);
+              },
+              leading: const Icon(
                 Icons.tv,
                 color: Colors.white,
                 size: 24.0,
               ),
-              title: Text(
+              title: const Text(
                 'TV Shows',
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),

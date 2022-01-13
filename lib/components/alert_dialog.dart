@@ -13,11 +13,11 @@ class ShowDialogBox {
   // final Function onPressNoButton;
 
   static Future dialogBoxes(
-      BuildContext context,
-      String alertTitle,
-      String alertMessage,
-      Function onPressYesButton,
-      Function onPressNoButton) async {
+      {required BuildContext context,
+      required String alertTitle,
+      required String alertMessage,
+      required Function onPressYesButton,
+      required Function onPressNoButton}) async {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -38,7 +38,7 @@ class ShowDialogBox {
               TextButton(
                 child: const Text("No"),
                 onPressed: () {
-                  onPressYesButton();
+                  onPressNoButton();
                 },
               ),
             ],
