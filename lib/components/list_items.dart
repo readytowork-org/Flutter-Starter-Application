@@ -6,6 +6,7 @@ class ListItems extends StatelessWidget {
   final String movieDetails;
   final String movieRating;
   final String movieLanguage;
+  final Function onPress;
 
   const ListItems(
       {Key? key,
@@ -13,7 +14,8 @@ class ListItems extends StatelessWidget {
       required this.movieName,
       required this.movieDetails,
       required this.movieRating,
-      required this.movieLanguage})
+      required this.movieLanguage,
+      required this.onPress})
       : super(key: key);
 
   @override
@@ -26,7 +28,7 @@ class ListItems extends StatelessWidget {
         ),
         child: InkWell(
           splashColor: Colors.grey,
-          onTap: () => print("Container pressed"),
+          onTap: () => onPress(),
           child: Row(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -36,12 +38,20 @@ class ListItems extends StatelessWidget {
                       BoxDecoration(borderRadius: BorderRadius.circular(25)),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(5.0),
-                    child: Image.network(
-                      imagePath,
-                      height: 150,
-                      width: 130,
-                      fit: BoxFit.fill,
-                    ),
+                    child: imagePath == ""
+                        ? Hero(
+                            tag: 'assets/images/imagenotfound.png',
+                            child:
+                                Image.asset('assets/images/imagenotfound.png'))
+                        : Hero(
+                            tag: imagePath,
+                            child: Image.network(
+                              imagePath,
+                              height: 150,
+                              width: 130,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
                   )),
               Expanded(
                 child: Padding(

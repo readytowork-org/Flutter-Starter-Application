@@ -67,6 +67,7 @@ class _PopularTvShowsState extends State<PopularTvShows> {
                   itemCount: data.length,
                   itemBuilder: (context, index) {
                     return ListItems(
+                        onPress: () {},
                         imagePath: data[index].posterPath.toString(),
                         movieName: data[index].originalName.toString(),
                         movieDetails: data[index].overview.toString(),

@@ -1,3 +1,4 @@
+import 'package:basic_app/Screens/detail_screen.dart';
 import 'package:basic_app/Screens/home_sreen.dart';
 import 'package:basic_app/Screens/login_screen.dart';
 import 'package:basic_app/Screens/search_screen.dart';
@@ -32,7 +33,9 @@ class MyApp extends StatelessWidget {
         RoutesAvailable.loginRoute: (context) => const LoginScreen(),
         RoutesAvailable.homeRoute: (context) => const Home(),
         RoutesAvailable.searchRoute: (context) => const SearchScreen(),
-        RoutesAvailable.populatTvShowsRoute: (context) => const PopularTvShows()
+        RoutesAvailable.populatTvShowsRoute: (context) =>
+            const PopularTvShows(),
+        RoutesAvailable.detailsRoute: (context) => const DetailScreen(),
       },
     );
   }
