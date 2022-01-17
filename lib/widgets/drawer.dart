@@ -1,4 +1,5 @@
 import 'package:basic_app/components/alert_dialog.dart';
+import 'package:basic_app/components/google_maps.dart';
 import 'package:basic_app/utilities/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,18 +14,18 @@ class DrawerList extends StatefulWidget {
 }
 
 class _DrawerListState extends State<DrawerList> {
-  final String _image = "";
+  // final String _image = "";
 
   Future<void> imgFromCamera() async {
     try {
       final XFile? image =
           await ImagePicker().pickImage(source: ImageSource.camera);
-      print('image from camera $image');
+      // print('image from camera $image');
       // setState(() {
       //   _image = image;
       // });
     } catch (error) {
-      print("error from gallery $error");
+      // print("error from gallery $error");
     }
   }
 
@@ -32,12 +33,12 @@ class _DrawerListState extends State<DrawerList> {
     try {
       final XFile? image =
           await ImagePicker().pickImage(source: ImageSource.gallery);
-      print('image from camera $image');
+      // print('image from camera $image');
       // setState(() {
       //   _image = image;
       // });
     } catch (error) {
-      print("error from camera $error");
+      // print("error from camera $error");
     }
   }
 
@@ -169,6 +170,7 @@ class _DrawerListState extends State<DrawerList> {
               ),
               tileColor: Colors.red,
             ),
+            const RenderGoogleMaps()
           ],
         ),
       ),

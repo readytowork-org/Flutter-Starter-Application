@@ -110,7 +110,7 @@ class _HomeState extends State<Home> {
       }).toList();
       data.addAll(list);
       setState(() {});
-
+      pageValue++;
       getMoreData = false;
     }
     // .then((value) => print('value $value'))

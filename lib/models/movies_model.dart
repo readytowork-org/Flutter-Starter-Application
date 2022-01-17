@@ -86,7 +86,7 @@ class Results {
     overview = json['overview'];
     popularity = json['popularity'];
     posterPath = json['poster_path'];
-    releaseDate = json['release_date'];
+    releaseDate = json['release_date'] ?? "";
     title = json['title'] ?? "";
     video = json['video'] ?? false;
     voteAverage = json['vote_average'].toDouble();
