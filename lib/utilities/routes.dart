@@ -4,4 +4,5 @@ class RoutesAvailable {
   static const searchRoute = '/search';
   static const populatTvShowsRoute = '/popularTvShows';
   static const detailsRoute = '/details';
+  static const locationRoute = '/location';
 }

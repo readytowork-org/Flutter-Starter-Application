@@ -1,5 +1,6 @@
 import 'package:basic_app/Screens/detail_screen.dart';
 import 'package:basic_app/Screens/home_sreen.dart';
+import 'package:basic_app/Screens/location.dart';
 import 'package:basic_app/Screens/login_screen.dart';
 import 'package:basic_app/Screens/search_screen.dart';
 import 'package:basic_app/Screens/tv_shows.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       // themeMode: ThemeMode.light,
 
       //to remove debugging banner in app screen
-      // debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
 
       theme: Themes.lightThemeValue(),
       //initial route to display, same as react-native
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         RoutesAvailable.populatTvShowsRoute: (context) =>
             const PopularTvShows(),
         RoutesAvailable.detailsRoute: (context) => const DetailScreen(),
+        RoutesAvailable.locationRoute: (context) => const LocationScreen(),
       },
     );
   }

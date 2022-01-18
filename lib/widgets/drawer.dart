@@ -3,6 +3,7 @@ import 'package:basic_app/components/google_maps.dart';
 import 'package:basic_app/utilities/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -15,6 +16,11 @@ class DrawerList extends StatefulWidget {
 
 class _DrawerListState extends State<DrawerList> {
   // final String _image = "";
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> imgFromCamera() async {
     try {
@@ -157,7 +163,27 @@ class _DrawerListState extends State<DrawerList> {
               thickness: 1,
               color: Colors.white,
             ),
-            // SizedBox(height: 10),
+            // const SizedBox(height: 10),
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, RoutesAvailable.locationRoute);
+              },
+              leading: const Icon(
+                Icons.share_location_outlined,
+                color: Colors.white,
+                size: 24.0,
+              ),
+              title: const Text(
+                'Location',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              tileColor: Colors.red,
+            ),
+            const Divider(
+              thickness: 1,
+              color: Colors.white,
+            ),
             const ListTile(
               leading: Icon(
                 Icons.settings,
@@ -170,7 +196,11 @@ class _DrawerListState extends State<DrawerList> {
               ),
               tileColor: Colors.red,
             ),
-            const RenderGoogleMaps()
+            const Divider(
+              thickness: 1,
+              color: Colors.white,
+            ),
+            // const RenderGoogleMaps()
           ],
         ),
       ),
