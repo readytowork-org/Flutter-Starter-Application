@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
 
       theme: Themes.lightThemeValue(),
       //initial route to display, same as react-native
-      initialRoute: RoutesAvailable.homeRoute,
+      initialRoute: RoutesAvailable.locationRoute,
       // darkTheme: ThemeData(brightness: Brightness.dark),
       routes: {
         // route '/' means Home or main page, either put home: Home() or route '/'

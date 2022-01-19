@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:basic_app/components/alert_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,6 +18,9 @@ class LocationScreen extends StatefulWidget {
 class _LocationScreenState extends State<LocationScreen> {
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
+  List<Marker> markerList = [];
+
+  List<Placemark> addresses = [];
   // late Position _position;
 
   final CameraPosition cameraPosition = const CameraPosition(
@@ -30,11 +34,18 @@ class _LocationScreenState extends State<LocationScreen> {
     userPosition();
   }
 
-  //   @override
-  // void dispose() {
-  //   super.dispose();
-  //   _controllerGoogleMap.dispose();
-  // }
+  animateCamera(locationValue) async {
+    //set caera position to userlocation
+    CameraPosition cameraPosition = CameraPosition(
+      target: LatLng(locationValue.latitude, locationValue.longitude),
+      zoom: 14.4746,
+    );
+
+    final GoogleMapController newMapController =
+        await _controllerGoogleMap.future;
+    newMapController
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+  }
 
   userPosition() async {
     var permission = await Geolocator.requestPermission();
@@ -56,19 +67,41 @@ class _LocationScreenState extends State<LocationScreen> {
         permission == LocationPermission.whileInUse) {
       Position myLocation = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
+      var locationDetails = await placemarkFromCoordinates(
+          myLocation.latitude, myLocation.longitude);
+      print(locationDetails.runtimeType);
+      print(locationDetails);
 
-      //set caera position to userlocation
-      CameraPosition cameraPosition = CameraPosition(
-        target: LatLng(myLocation.latitude, myLocation.longitude),
-        zoom: 14.4746,
-      );
+      addresses = locationDetails;
+      animateCamera(myLocation);
 
-      final GoogleMapController newMapController =
-          await _controllerGoogleMap.future;
-      newMapController
-          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-
-      print(myLocation);
+//modal at bottom of screen
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Container(
+              decoration: BoxDecoration(color: Colors.white),
+              margin: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10.0),
+              child: Expanded(
+                child: Wrap(
+                  children: [
+                    const Text(
+                      "User Location is",
+                      style: TextStyle(fontSize: 17),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "${locationDetails[0].name}, ${locationDetails[0].locality}, ${locationDetails[0].subAdministrativeArea}, ${locationDetails[0].country}",
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
     } else {
       ShowDialogBox.dialogBoxes(
           context: context,
@@ -83,19 +116,54 @@ class _LocationScreenState extends State<LocationScreen> {
     }
   }
 
+  addMarkers(argument) async {
+    print(argument);
+
+    print(markerList);
+
+    animateCamera(argument);
+
+    // CameraPosition cameraPosition = CameraPosition(
+    //   target: argument,
+    //   zoom: 14.4746,
+    // );
+
+    // final GoogleMapController newMapController =
+    //     await _controllerGoogleMap.future;
+    // newMapController
+    //     .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+    Marker userlocation = Marker(
+      draggable: true,
+      onDragEnd: ((newPosition) {
+        // print('the new location is $newPosition');
+        // print(newPosition.longitude);/
+      }),
+      markerId: MarkerId(argument.toString()),
+      position: argument,
+      infoWindow: const InfoWindow(title: 'Business 2'),
+      icon: BitmapDescriptor.defaultMarker,
+    );
+    markerList.add(userlocation);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(title: const Text("Location")),
         body:
             // ? const Center(child: CupertinoActivityIndicator())
             // :
             GoogleMap(
-      initialCameraPosition: cameraPosition,
-      myLocationEnabled: true,
-      zoomGesturesEnabled: true,
-      onMapCreated: (GoogleMapController googleMapController) {
-        _controllerGoogleMap.complete(googleMapController);
-      },
-    ));
+          markers: Set<Marker>.from(markerList),
+          initialCameraPosition: cameraPosition,
+          myLocationEnabled: true,
+          zoomGesturesEnabled: true,
+          onLongPress: addMarkers,
+          onMapCreated: (GoogleMapController googleMapController) {
+            _controllerGoogleMap.complete(googleMapController);
+          },
+        ));
   }
 }

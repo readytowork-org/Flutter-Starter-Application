@@ -44,6 +44,7 @@ dependencies:
   cached_network_image: ^3.2.0
   google_maps_flutter: ^2.1.1
   geolocator: ^8.0.3
+  geocoding: ^2.0.2
 
 dev_dependencies:
   flutter_test:
