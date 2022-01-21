@@ -80,7 +80,7 @@ class _LocationScreenState extends State<LocationScreen> {
           context: context,
           builder: (BuildContext context) {
             return Container(
-              decoration: BoxDecoration(color: Colors.white),
+              decoration: const BoxDecoration(color: Colors.white),
               margin: const EdgeInsets.all(10.0),
               padding: const EdgeInsets.all(10.0),
               child: Expanded(

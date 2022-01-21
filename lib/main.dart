@@ -1,7 +1,9 @@
+import 'package:basic_app/Screens/authentication_screen.dart';
 import 'package:basic_app/Screens/detail_screen.dart';
 import 'package:basic_app/Screens/home_sreen.dart';
 import 'package:basic_app/Screens/location.dart';
 import 'package:basic_app/Screens/login_screen.dart';
+import 'package:basic_app/Screens/registration_screen.dart';
 import 'package:basic_app/Screens/search_screen.dart';
 import 'package:basic_app/Screens/tv_shows.dart';
 import 'package:basic_app/utilities/routes.dart';
@@ -27,10 +29,14 @@ class MyApp extends StatelessWidget {
 
       theme: Themes.lightThemeValue(),
       //initial route to display, same as react-native
-      initialRoute: RoutesAvailable.locationRoute,
+      initialRoute: RoutesAvailable.authenticationRoute,
       // darkTheme: ThemeData(brightness: Brightness.dark),
       routes: {
-        // route '/' means Home or main page, either put home: Home() or route '/'
+        // route '/' means Home or main page, either put home: Home() or route '/'.
+        RoutesAvailable.authenticationRoute: (context) =>
+            const AuthenticationScreen(),
+        RoutesAvailable.registrationRoute: (context) =>
+            const RegistrationScreen(),
         RoutesAvailable.loginRoute: (context) => const LoginScreen(),
         RoutesAvailable.homeRoute: (context) => const Home(),
         RoutesAvailable.searchRoute: (context) => const SearchScreen(),
