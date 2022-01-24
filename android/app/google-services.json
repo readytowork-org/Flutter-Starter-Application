@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "142784056602",
+    "project_id": "movies-hub-338509",
+    "storage_bucket": "movies-hub-338509.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142784056602:android:69413ade18f7fa6049f0a3",
+        "android_client_info": {
+          "package_name": "com.example.basic_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "142784056602-00s20ovui188qk4b50n2dj1v0bsu91ek.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl6tF5d5Vh664GnOmNLFUHLev6BbLaRFM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142784056602-00s20ovui188qk4b50n2dj1v0bsu91ek.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,10 @@
+import 'package:basic_app/components/button.dart';
+import 'package:basic_app/components/text_field.dart';
 import 'package:basic_app/utilities/routes.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -16,49 +21,64 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String confirmPassword = "";
   String emailAddress = "";
   String address = "";
-  late DateTime dateOfBirth;
+  DateTime dateOfBirth = DateTime.now();
 
-  bool changeButton = false;
+  bool showPassword = false;
+  bool showConfirmPassword = false;
+
+  bool setLoading = false;
+
   final _formKey = GlobalKey<FormState>();
 
-  _onTap() async {
+  onRegisterButtonClicked() async {
     if (_formKey.currentState!.validate()) {
-      print('Button is pressed $changeButton ');
-
-      print({
-        firstName,
-        lastName,
-        userName,
-        password,
-        confirmPassword,
-        emailAddress,
-        address,
-        dateOfBirth
-      });
-
       setState(() {
-        changeButton = true;
+        setLoading = true;
       });
 
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // prefs.setString('counter', firstName);
-
-      await Future.delayed(const Duration(seconds: 1));
-
-      await Navigator.pushNamed(context, RoutesAvailable.homeRoute);
-      setState(() {
-        changeButton = false;
-      });
+      try {
+        User? userDetails = FirebaseAuth.instance.currentUser;
+        await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: emailAddress, password: password)
+            .then((value) => FirebaseFirestore.instance
+                    .collection("User Details")
+                    .doc(userDetails?.uid)
+                    .set({
+                  "First Name": firstName,
+                  "Last Name": lastName,
+                  "User Name": userName,
+                  "Password": password,
+                  "Email Address": emailAddress,
+                  "Address": address,
+                  "Date of Birth": dateOfBirth,
+                }).then((value) {
+                  setState(() {
+                    setLoading = false;
+                  });
+                  print("successfully registered");
+                }).onError((error, stackTrace) {
+                  setState(() {
+                    setLoading = false;
+                  });
+                  print('Error occurred on storing data $error');
+                }));
+      } catch (e) {
+        setState(() {
+          setLoading = false;
+        });
+        print("Error occurred while seting firebase $e");
+      }
     }
   }
 
   onDatePickerTapped() async {
     showDatePicker(
-      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      // initialEntryMode: DatePickerEntryMode.calendarOnly,
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2018),
-      lastDate: DateTime(2030),
+      initialDate: dateOfBirth,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
     ) //what will be the up to supported date in picker
         .then((pickedDate) {
       //then usually do the future job
@@ -66,6 +86,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         //if user tap cancel then this function will stop
         return;
       }
+      print(
+          'picked date is  ${pickedDate.year}/${pickedDate.month}/${pickedDate.day}');
       setState(() {
         //for rebuilding the ui
         dateOfBirth = pickedDate;
@@ -76,177 +98,160 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text(
-          "Register",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Required";
-                        }
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (value) {
-                        setState(() {
-                          firstName = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                          labelText: 'First Name',
-                          hintText: 'Enter First Name'),
-                    ),
-                    TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Required";
-                        }
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (value) {
-                        setState(() {
-                          lastName = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                          labelText: 'Last Name', hintText: 'Enter Last Name'),
-                    ),
-                    TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Required";
-                        }
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (value) {
-                        setState(() {
-                          userName = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                          labelText: 'User Name', hintText: 'Enter User Name'),
-                    ),
-                    TextFormField(
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Required";
-                        } else if (value.length < 6) {
-                          return "Password length must be at least six characters";
-                        }
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (value) {
-                        setState(() {
-                          password = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                          labelText: 'Password', hintText: 'Required'),
-                    ),
-                    TextFormField(
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          labelText: 'Confirm Password', hintText: 'Required'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Required";
-                        } else if (value.length < 6) {
-                          return "Password length must be at least six characters";
-                        }
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (value) {
-                        setState(() {
-                          confirmPassword = value;
-                        });
-                      },
-                    ),
-                    TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Required";
-                        }
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (value) {
-                        setState(() {
-                          emailAddress = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                          labelText: 'Email', hintText: 'Enter Email Address'),
-                    ),
-                    TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Required";
-                        }
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onChanged: (value) {
-                        setState(() {
-                          address = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                          labelText: 'Address', hintText: 'Enter User Address'),
-                    ),
-                  ],
-                ),
-              ),
+          iconTheme: const IconThemeData(color: Colors.black),
+          backgroundColor: Colors.transparent,
+          centerTitle: false,
+          title: const Text(
+            "Registration",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
             ),
-            const SizedBox(
-              height: 30,
-            ),
-            ElevatedButton(
-                child: const Text('Add Date'), onPressed: onDatePickerTapped),
-            const SizedBox(
-              height: 30,
-            ),
-            Material(
-              borderRadius: BorderRadius.circular(changeButton ? 25 : 5),
-              color: Colors.red,
-              child: InkWell(
-                splashColor: Colors.white24,
-                onTap: () => _onTap(),
-                child: AnimatedContainer(
-                    height: 50,
-                    width: changeButton ? 50 : 150,
-                    alignment: Alignment.center,
-                    duration: const Duration(seconds: 1),
-                    child: changeButton
-                        ? const Icon(
-                            Icons.done,
-                            color: Colors.white,
-                          )
-                        : const Text('Login',
-                            style:
-                                TextStyle(fontSize: 20, color: Colors.white))),
-              ),
-            )
-          ]),
+          )),
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 15.0, right: 15, top: 20),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFieldComponent(
+                          onChanged: (value) {
+                            setState(() {
+                              firstName = value;
+                            });
+                          },
+                          labelText: "First Name",
+                          hintText: "Enter First Name",
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldComponent(
+                          onChanged: (value) {
+                            setState(() {
+                              lastName = value;
+                            });
+                          },
+                          labelText: "Last Name",
+                          hintText: "Enter Last Name",
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldComponent(
+                          onChanged: (value) {
+                            setState(() {
+                              userName = value;
+                            });
+                          },
+                          labelText: "Username",
+                          hintText: "Enter Username",
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldComponent(
+                          obscureText: !showPassword,
+                          onChanged: (value) {
+                            setState(() {
+                              password = value;
+                            });
+                          },
+                          labelText: "Password",
+                          hintText: "Enter Password",
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              !showPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              showPassword = !showPassword;
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldComponent(
+                          obscureText: !showConfirmPassword,
+                          onChanged: (value) {
+                            confirmPassword = value;
+                            setState(() {});
+                          },
+                          labelText: "Confirm Password",
+                          hintText: "Enter your password again",
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              !showConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              showConfirmPassword = !showConfirmPassword;
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldComponent(
+                            onChanged: (value) {
+                              setState(() {
+                                emailAddress = value;
+                              });
+                            },
+                            labelText: "Email Address",
+                            hintText: "Enter your email address"),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldComponent(
+                            onChanged: (value) {
+                              setState(() {
+                                address = value;
+                              });
+                            },
+                            labelText: "Address",
+                            hintText: "Enter your address"),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  InkWell(
+                      child: Text(
+                        "Date of Birth: ${dateOfBirth.year}-${dateOfBirth.month}-${dateOfBirth.day}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: onDatePickerTapped),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  ButtonComponent(
+                    onTap: onRegisterButtonClicked,
+                    buttonColor: Colors.red,
+                    loading: setLoading,
+                    buttonText: "Register",
+                    fontColor: Colors.white,
+                    fontSize: 18,
+                    height: 40,
+                  )
+                ]),
+          ),
         ),
       ),
     );

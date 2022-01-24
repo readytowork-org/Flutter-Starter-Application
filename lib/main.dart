@@ -9,8 +9,11 @@ import 'package:basic_app/Screens/tv_shows.dart';
 import 'package:basic_app/utilities/routes.dart';
 import 'package:basic_app/widgets/themes.dart';
 import "package:flutter/material.dart";
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -35,9 +38,10 @@ class MyApp extends StatelessWidget {
         // route '/' means Home or main page, either put home: Home() or route '/'.
         RoutesAvailable.authenticationRoute: (context) =>
             const AuthenticationScreen(),
+        RoutesAvailable.loginRoute: (context) => const LoginScreen(),
         RoutesAvailable.registrationRoute: (context) =>
             const RegistrationScreen(),
-        RoutesAvailable.loginRoute: (context) => const LoginScreen(),
+
         RoutesAvailable.homeRoute: (context) => const Home(),
         RoutesAvailable.searchRoute: (context) => const SearchScreen(),
         RoutesAvailable.populatTvShowsRoute: (context) =>

@@ -41,10 +41,13 @@ dependencies:
   camera: ^0.9.4+5
   image_picker: ^0.8.4+4
   permission_handler: ^8.3.0
-  cached_network_image: ^3.2.0
+  cached_network_image: ^3.2.0 
   google_maps_flutter: ^2.1.1
   geolocator: ^8.0.3
   geocoding: ^2.0.2
+  cloud_firestore: ^3.1.6
+  firebase_auth: ^3.3.5
+  fluttertoast: ^8.0.8
 
 dev_dependencies:
   flutter_test:

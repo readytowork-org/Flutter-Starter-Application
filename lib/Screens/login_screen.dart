@@ -1,4 +1,7 @@
+import 'package:basic_app/components/button.dart';
+import 'package:basic_app/components/text_field.dart';
 import 'package:basic_app/utilities/routes.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,10 +14,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   String name = "";
+  String password = "";
+
+  bool showPassword = false;
   bool changeButton = false;
   final _formKey = GlobalKey<FormState>();
 
-  _onTap() async {
+  onTapLoginButton() async {
     if (_formKey.currentState!.validate()) {
       print('Button is pressed $changeButton ');
       setState(() {
@@ -40,138 +46,103 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Material(
         child: Center(
           child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // const SizedBox(height: 20),
-                  Image.asset(
-                    'assets/images/login_image.jpg',
-                    fit: BoxFit.contain,
-                    height: 250,
-                    // width: 200,
-                  ),
-                  Container(
-                    // padding: const EdgeInsets.only(bottom: 10.0),
-                    padding: const EdgeInsets.all(10.0),
-                    margin: const EdgeInsets.only(top: 35),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueAccent, width: 8),
-                      borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(20.0),
-                          bottomRight: Radius.circular(20.0)),
-                      color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Image.asset(
+                      'assets/images/login_image.jpg',
+                      fit: BoxFit.contain,
+                      height: 250,
+                      // width: 200,
                     ),
-                    child: Text(
-                      'Welcome $name',
-                      style: const TextStyle(
-                          fontSize: 30, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 20.0, horizontal: 15),
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Username cannot be empty";
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              name = value;
-                            });
-                          },
-                          decoration: const InputDecoration(
-                              labelText: 'User Name',
-                              hintText: 'Enter User Name'),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        TextFormField(
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Enter Password'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Password cannot be empty";
-                            } else if (value.length < 6) {
-                              return "Password length must be at least six characters";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(
-                          height: 40,
-                        ),
-
-                        // ElevatedButton(
-                        //     // In general
-                        //     // style: ElevatedButton.styleFrom(
-                        //     //   primary: Colors.red, // background
-                        //     //   onPrimary: Colors.yellow, // foreground
-                        //     // ),
-                        //     style: ButtonStyle(
-                        //       minimumSize:
-                        //           MaterialStateProperty.all<Size>(const Size(150, 50)),
-                        //       // padding: MaterialStateProperty.all<EdgeInsets>(
-                        //       //     EdgeInsets.symmetric(vertical: 10, horizontal: 40)),
-                        //       //   backgroundColor:
-                        //       //       MaterialStateProperty.all<Color>(Colors.red),
-                        //     ),
-                        //     onPressed: () {
-                        //       print('Button is pressed');
-                        //       Navigator.pushNamed(context, RoutesAvailable.homeRoute);
-                        //     },
-                        //     child: const Text(
-                        //       "Login",
-                        //       style:
-                        //           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        //     ))
-
-                        //          OR
-
-                        Material(
-                          borderRadius:
-                              BorderRadius.circular(changeButton ? 25 : 5),
-                          color: Colors.red,
-                          child: InkWell(
-                            // splashColor will not work perfectly because it needs to be wrapped in material
-                            // so we will wrap Inkwell using material in this case
-                            splashColor: Colors.white24,
-                            onTap: () => _onTap(),
-                            child: AnimatedContainer(
-                                height: 50,
-                                width: changeButton ? 50 : 150,
-                                // color: Colors.red, /*either here or inside decoration*/
-                                alignment: Alignment.center,
-
-                                // commenting this because borderRadius should be provided to main cwidget i.e. material
-                                // decoration: BoxDecoration(
-                                //     color: Colors.red,
-                                //     borderRadius:
-                                //         BorderRadius.circular(changeButton ? 25 : 5)),
-                                duration: const Duration(seconds: 1),
-                                child: changeButton
-                                    ? const Icon(
-                                        Icons.done,
-                                        color: Colors.white,
-                                      )
-                                    : const Text('Login',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.white))),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Column(
+                        children: [
+                          TextFieldComponent(
+                            onChanged: (value) {
+                              setState(() {
+                                name = value;
+                              });
+                            },
+                            labelText: 'User Name',
+                            hintText: 'Enter User Name',
+                            prefixIcon: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(CupertinoIcons.person_fill),
+                            ),
                           ),
-                        )
-                      ],
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          TextFieldComponent(
+                            obscureText: !showPassword,
+                            onChanged: (value) {
+                              setState(() {
+                                password = value;
+                              });
+                            },
+                            labelText: "Password",
+                            hintText: "Enter Password",
+                            prefixIcon: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(
+                                CupertinoIcons.lock_shield,
+                                color: Colors.red,
+                              ),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                !showPassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () {
+                                showPassword = !showPassword;
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  )
-                ],
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    ButtonComponent(
+                      onTap: onTapLoginButton,
+                      height: 40,
+                      buttonColor: Colors.red,
+                      buttonText: "Login",
+                      fontSize: 18,
+                      fontColor: Colors.white,
+                    ),
+                    const Text(
+                      "Forgot password?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    ButtonComponent(
+                      onTap: () => Navigator.pushNamed(
+                          context, RoutesAvailable.registrationRoute),
+                      height: 40,
+                      buttonColor: Colors.deepPurple,
+                      buttonText: "Register",
+                      fontSize: 18,
+                      fontColor: Colors.white,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
