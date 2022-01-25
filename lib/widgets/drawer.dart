@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DrawerList extends StatefulWidget {
   const DrawerList({Key? key}) : super(key: key);
@@ -199,6 +200,27 @@ class _DrawerListState extends State<DrawerList> {
             const Divider(
               thickness: 1,
               color: Colors.white,
+            ),
+            ListTile(
+              onTap: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setBool('loggedInValue', false);
+                Navigator.pop(context);
+                Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    RoutesAvailable.authenticationRoute,
+                    (Route<dynamic> route) => false);
+              },
+              leading: const Icon(
+                Icons.logout,
+                color: Colors.white,
+                size: 24.0,
+              ),
+              title: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              tileColor: Colors.red,
             ),
             // const RenderGoogleMaps()
           ],

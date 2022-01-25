@@ -1,5 +1,5 @@
 class RoutesAvailable {
-  static const authenticationRoute = '/';
+  static const authenticationRoute = '/authentication';
   static const loginRoute = '/login';
   static const registrationRoute = '/register';
   static const homeRoute = '/home';

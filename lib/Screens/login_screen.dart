@@ -1,8 +1,10 @@
 import 'package:basic_app/components/button.dart';
 import 'package:basic_app/components/text_field.dart';
 import 'package:basic_app/utilities/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,29 +15,57 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String name = "";
+  String emailAddress = "";
   String password = "";
 
   bool showPassword = false;
-  bool changeButton = false;
+  bool setLoading = false;
   final _formKey = GlobalKey<FormState>();
 
   onTapLoginButton() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (_formKey.currentState!.validate()) {
-      print('Button is pressed $changeButton ');
       setState(() {
-        changeButton = true;
+        setLoading = true;
       });
+      try {
+        // User? userDetails = FirebaseAuth.instance.currentUser;
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: emailAddress, password: password)
+            .then((signedInUser) async {
+          setState(() {
+            setLoading = false;
+          });
+          Fluttertoast.showToast(
+            msg: "Successfully Logged In",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('counter', name);
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool('loggedInValue', true);
 
-      await Future.delayed(const Duration(seconds: 1));
-
-      await Navigator.pushNamed(context, RoutesAvailable.homeRoute);
-      setState(() {
-        changeButton = false;
-      });
+          Navigator.pushNamedAndRemoveUntil(context, RoutesAvailable.homeRoute,
+              (Route<dynamic> route) => false);
+        });
+      } catch (e) {
+        setState(() {
+          setLoading = false;
+        });
+        Fluttertoast.showToast(
+            msg: "$e",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        print("Error occurred while logging $e");
+      }
     }
   }
 
@@ -46,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Material(
         child: Center(
           child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Form(
@@ -66,11 +97,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextFieldComponent(
                             onChanged: (value) {
                               setState(() {
-                                name = value;
+                                emailAddress = value;
                               });
                             },
-                            labelText: 'User Name',
-                            hintText: 'Enter User Name',
+                            labelText: 'Email Address',
+                            hintText: 'Enter Email Address',
                             prefixIcon: IconButton(
                               onPressed: () {},
                               icon: const Icon(CupertinoIcons.person_fill),
@@ -114,6 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 40,
                     ),
                     ButtonComponent(
+                      loading: setLoading,
                       onTap: onTapLoginButton,
                       height: 40,
                       buttonColor: Colors.red,

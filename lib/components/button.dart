@@ -30,7 +30,10 @@ class ButtonComponent extends StatelessWidget {
     return InkWell(
       splashColor: Colors.white24,
       child: loadingValue
-          ? const CupertinoActivityIndicator()
+          ? const Padding(
+              padding: EdgeInsets.all(10.0),
+              child: CupertinoActivityIndicator(),
+            )
           : MaterialButton(
               height: height,
               minWidth: minWidth,

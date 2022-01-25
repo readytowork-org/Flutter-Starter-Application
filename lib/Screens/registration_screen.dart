@@ -1,10 +1,9 @@
 import 'package:basic_app/components/button.dart';
 import 'package:basic_app/components/text_field.dart';
-import 'package:basic_app/utilities/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -56,17 +55,35 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   setState(() {
                     setLoading = false;
                   });
-                  print("successfully registered");
+                  Fluttertoast.showToast(
+                    msg: "Successfully registered.",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.grey,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                  Navigator.pop(context);
                 }).onError((error, stackTrace) {
                   setState(() {
                     setLoading = false;
                   });
+
                   print('Error occurred on storing data $error');
                 }));
       } catch (e) {
         setState(() {
           setLoading = false;
         });
+        Fluttertoast.showToast(
+            msg: "$e",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey,
+            textColor: Colors.white,
+            fontSize: 16.0);
         print("Error occurred while seting firebase $e");
       }
     }

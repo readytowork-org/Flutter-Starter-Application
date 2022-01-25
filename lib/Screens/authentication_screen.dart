@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:basic_app/components/login_card.dart';
 import 'package:basic_app/utilities/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({Key? key}) : super(key: key);
@@ -13,6 +17,33 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> signInFB() async {
+    try {
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: [
+          'public_profile',
+          'email',
+        ],
+      ); // by default we request the email and the public profile
+      // or FacebookAuth.i.login()
+      if (result.status == LoginStatus.success) {
+        // you are logged
+
+        final OAuthCredential facebookAuthCredential =
+            FacebookAuthProvider.credential(result.accessToken!.token);
+        //storing data in firebase
+        await FirebaseAuth.instance
+            .signInWithCredential(facebookAuthCredential);
+
+        // print('success result $accessToken');
+      } else {
+        print('error result $result');
+      }
+    } catch (e) {
+      print('Facebook login error $e');
+    }
   }
 
   @override
@@ -47,10 +78,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   height: 20,
                 ),
                 LoginCard(
-                    onPress: () {
-                      print('object');
-                      Navigator.pushNamed(context, RoutesAvailable.loginRoute);
-                    },
+                    onPress: signInFB,
                     image: 'assets/images/facebook.jpg',
                     textValue: "Login using Facebook"),
                 const SizedBox(
