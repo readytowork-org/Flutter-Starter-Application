@@ -4,6 +4,7 @@ import 'package:basic_app/utilities/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,6 +53,17 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.pushNamedAndRemoveUntil(context, RoutesAvailable.homeRoute,
               (Route<dynamic> route) => false);
         });
+        //.catchError((onError) {
+        //     setState(() {
+        //       setLoading = false;
+        //     });
+        //     print("Error occurred while authenticating $onError");
+        //   });
+        // } on PlatformException catch (e) {
+        //   setState(() {
+        //     setLoading = false;
+        //   });
+        //   print('platform exception while signing with email and password $e');
       } catch (e) {
         setState(() {
           setLoading = false;

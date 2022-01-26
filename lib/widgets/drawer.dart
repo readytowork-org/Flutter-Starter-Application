@@ -1,9 +1,9 @@
 import 'package:basic_app/components/alert_dialog.dart';
-import 'package:basic_app/components/google_maps.dart';
 import 'package:basic_app/utilities/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,6 +70,8 @@ class _DrawerListState extends State<DrawerList> {
                           permission == PermissionStatus.denied) {
                         ShowDialogBox.dialogBoxes(
                             context: context,
+                            textOption1: "Yes",
+                            textOption2: "No",
                             alertTitle: "Permission Denied",
                             alertMessage: "Do you want to open Settings?",
                             onPressYesButton: () {
@@ -83,16 +85,19 @@ class _DrawerListState extends State<DrawerList> {
                         imgFromGallery();
                       } else {
                         ShowDialogBox.dialogBoxes(
-                            context: context,
-                            alertTitle: "Restricted",
-                            alertMessage:
-                                "This feature restricted in your device",
-                            onPressYesButton: () {
-                              Navigator.pop(context);
-                            },
-                            onPressNoButton: () {
-                              Navigator.pop(context);
-                            });
+                          context: context,
+                          textOption1: "Yes",
+                          textOption2: "No",
+                          alertTitle: "Restricted",
+                          alertMessage:
+                              "This feature restricted in your device",
+                          onPressYesButton: () {
+                            Navigator.pop(context);
+                          },
+                          onPressNoButton: () {
+                            Navigator.pop(context);
+                          },
+                        );
                       }
                     })
               ],
@@ -205,11 +210,19 @@ class _DrawerListState extends State<DrawerList> {
               onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.setBool('loggedInValue', false);
+                String? loggedInUsing = prefs.getString("loggedInUsing");
                 Navigator.pop(context);
                 Navigator.pushNamedAndRemoveUntil(
                     context,
                     RoutesAvailable.authenticationRoute,
                     (Route<dynamic> route) => false);
+                if (loggedInUsing == "Facebook") {
+                  print("Sign out from $loggedInUsing");
+                  await FacebookAuth.instance.logOut();
+                } else if (loggedInUsing == "Google") {
+                  print("Sign out from $loggedInUsing");
+                  await GoogleSignIn().signOut();
+                }
               },
               leading: const Icon(
                 Icons.logout,

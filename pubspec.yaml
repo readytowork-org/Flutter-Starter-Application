@@ -38,8 +38,7 @@ dependencies:
   http: ^0.13.4
   sizer: ^2.0.15
   shared_preferences: ^2.0.12
-  camera: ^0.9.4+5
-  image_picker: ^0.8.4+4
+  image_picker: ^0.8.4+5
   permission_handler: ^8.3.0
   cached_network_image: ^3.2.0 
   google_maps_flutter: ^2.1.1
@@ -49,6 +48,8 @@ dependencies:
   firebase_auth: ^3.3.5
   fluttertoast: ^8.0.8
   flutter_facebook_auth: ^4.0.1
+  google_sign_in: ^5.2.3
+
 
 dev_dependencies:
   flutter_test:

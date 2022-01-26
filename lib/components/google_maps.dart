@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:basic_app/components/alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -14,7 +12,7 @@ class RenderGoogleMaps extends StatefulWidget {
 }
 
 class _RenderGoogleMapsState extends State<RenderGoogleMaps> {
-  final Completer<GoogleMapController> _controller = Completer();
+  // final Completer<GoogleMapController> _controller = Completer();
   late GoogleMapController newMapController;
   // late Position _position;
 
@@ -34,16 +32,19 @@ class _RenderGoogleMapsState extends State<RenderGoogleMaps> {
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
       ShowDialogBox.dialogBoxes(
-          context: context,
-          alertTitle: "Permission Denied",
-          alertMessage: "Do you want to open Settings?",
-          onPressYesButton: () {
-            openAppSettings();
-            Navigator.pop(context);
-          },
-          onPressNoButton: () {
-            Navigator.pop(context);
-          });
+        context: context,
+        textOption1: "Yes",
+        textOption2: "No",
+        alertTitle: "Permission Denied",
+        alertMessage: "Do you want to open Settings?",
+        onPressYesButton: () {
+          openAppSettings();
+          Navigator.pop(context);
+        },
+        onPressNoButton: () {
+          Navigator.pop(context);
+        },
+      );
     } else if (permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse) {
       Position myLocation = await Geolocator.getCurrentPosition(
@@ -60,15 +61,18 @@ class _RenderGoogleMapsState extends State<RenderGoogleMaps> {
       print(myLocation);
     } else {
       ShowDialogBox.dialogBoxes(
-          context: context,
-          alertTitle: "Restricted",
-          alertMessage: "This feature restricted in your device",
-          onPressYesButton: () {
-            Navigator.pop(context);
-          },
-          onPressNoButton: () {
-            Navigator.pop(context);
-          });
+        context: context,
+        textOption1: "Yes",
+        textOption2: "No",
+        alertTitle: "Restricted",
+        alertMessage: "This feature restricted in your device",
+        onPressYesButton: () {
+          Navigator.pop(context);
+        },
+        onPressNoButton: () {
+          Navigator.pop(context);
+        },
+      );
     }
   }
 

@@ -37,6 +37,7 @@ class _PopularTvShowsState extends State<PopularTvShows> {
   }
 
   //dispose method use to release the memory allocated to variables when state object is removed
+  @override
   void dispose() {
     super.dispose();
     _scrollController.dispose();

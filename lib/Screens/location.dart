@@ -53,16 +53,19 @@ class _LocationScreenState extends State<LocationScreen> {
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
       ShowDialogBox.dialogBoxes(
-          context: context,
-          alertTitle: "Permission Denied",
-          alertMessage: "Do you want to open Settings?",
-          onPressYesButton: () {
-            openAppSettings();
-            Navigator.pop(context);
-          },
-          onPressNoButton: () {
-            Navigator.pop(context);
-          });
+        context: context,
+        textOption1: "Yes",
+        textOption2: "No",
+        alertTitle: "Permission Denied",
+        alertMessage: "Do you want to open Settings?",
+        onPressYesButton: () {
+          openAppSettings();
+          Navigator.pop(context);
+        },
+        onPressNoButton: () {
+          Navigator.pop(context);
+        },
+      );
     } else if (permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse) {
       Position myLocation = await Geolocator.getCurrentPosition(
@@ -104,15 +107,18 @@ class _LocationScreenState extends State<LocationScreen> {
           });
     } else {
       ShowDialogBox.dialogBoxes(
-          context: context,
-          alertTitle: "Restricted",
-          alertMessage: "This feature restricted in your device",
-          onPressYesButton: () {
-            Navigator.pop(context);
-          },
-          onPressNoButton: () {
-            Navigator.pop(context);
-          });
+        context: context,
+        textOption1: "Yes",
+        textOption2: "No",
+        alertTitle: "Restricted",
+        alertMessage: "This feature restricted in your device",
+        onPressYesButton: () {
+          Navigator.pop(context);
+        },
+        onPressNoButton: () {
+          Navigator.pop(context);
+        },
+      );
     }
   }
 

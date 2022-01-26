@@ -1,10 +1,12 @@
-import 'dart:convert';
-
+import 'package:basic_app/components/alert_dialog.dart';
 import 'package:basic_app/components/login_card.dart';
 import 'package:basic_app/utilities/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({Key? key}) : super(key: key);
@@ -29,20 +31,82 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
       ); // by default we request the email and the public profile
       // or FacebookAuth.i.login()
       if (result.status == LoginStatus.success) {
-        // you are logged
-
         final OAuthCredential facebookAuthCredential =
             FacebookAuthProvider.credential(result.accessToken!.token);
+
         //storing data in firebase
         await FirebaseAuth.instance
-            .signInWithCredential(facebookAuthCredential);
-
-        // print('success result $accessToken');
+            .signInWithCredential(facebookAuthCredential)
+            .then((value) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString("loggedInUsing", "Facebook");
+          prefs.setBool('loggedInValue', true);
+          print('facebook email stored in firebase $value');
+          Navigator.pushNamedAndRemoveUntil(context, RoutesAvailable.homeRoute,
+              (Route<dynamic> route) => false);
+        }).catchError((onError) async {
+          print("error on saving facebook email in firebase $onError");
+          ShowDialogBox.dialogBoxes(
+            context: context,
+            textOption1: "OK",
+            textOption2: "Cancel",
+            alertTitle: "Error Logging using facebook",
+            alertMessage:
+                "An account already exists with the same email address but different sign-in credentials.\nPlease login with Google account instead.",
+            onPressYesButton: () async {
+              Navigator.pop(context);
+              signInWithGoogle();
+            },
+            onPressNoButton: () {
+              Navigator.pop(context);
+            },
+          );
+        });
       } else {
         print('error result $result');
       }
     } catch (e) {
       print('Facebook login error $e');
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    // Trigger the authentication flow
+    try {
+      final GoogleSignInAccount? googleSignIn = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth =
+          await googleSignIn?.authentication;
+
+      // Create a new credential
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      print("user credential is $credential");
+
+      // Once signed in, return the UserCredential
+      await FirebaseAuth.instance
+          .signInWithCredential(credential)
+          .then((value) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString("loggedInUsing", "Google");
+        prefs.setBool('loggedInValue', true);
+
+        Navigator.pushNamedAndRemoveUntil(context, RoutesAvailable.homeRoute,
+            (Route<dynamic> route) => false);
+
+        print(
+            "successfully stored value in firebase $value['user']['displayName']");
+      }).catchError((onError) {
+        print("error storing value in firebase $onError");
+      });
+    } on PlatformException catch (e) {
+      print('PlatformException error while logging with google account $e');
+    } catch (e) {
+      print('error while logging with google account $e');
     }
   }
 
@@ -87,10 +151,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                 LoginCard(
                   image: 'assets/images/gmail.jpg',
                   textValue: "Login using Gmail",
-                  onPress: () {
-                    print('object');
-                    Navigator.pushNamed(context, RoutesAvailable.loginRoute);
-                  },
+                  onPress: signInWithGoogle,
                 )
               ],
             ),
