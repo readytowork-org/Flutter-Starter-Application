@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:basic_app/components/list_items.dart';
+import 'package:basic_app/interceptor/dio_interceptor.dart.dart';
 import 'package:basic_app/models/movies_model.dart';
 import 'package:basic_app/utilities/routes.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
 import 'package:basic_app/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,12 +24,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final Dio _dio = Dio();
   final ScrollController _scrollController = ScrollController();
   List<Results> data = [];
   String name = "";
   int pageValue = 1;
   bool getMoreData = false;
   bool moreDataAvailable = false;
+  late final Response response;
 
   @override
   void initState() {
@@ -47,6 +52,7 @@ class _HomeState extends State<Home> {
   }
 
   //dispose method use to release the memory allocated to variables when state object is removed
+  @override
   void dispose() {
     super.dispose();
     _scrollController.dispose();
@@ -57,11 +63,11 @@ class _HomeState extends State<Home> {
   //   // String finalName = prefs.getString('counter');
   //   setState(() {
   //     print(prefs.getString('counter')!);
-  //   });
+//   });
   // }
 
-  Future<void> popularMovies() async {
-    // Fetching data from local json file
+  Future popularMovies() async {
+    // -------------Fetching data from local json file -------------------------
     // 1. Load the string using rootBundle.loadString(source)
     // 2. decode the loaded file using jsonDecode(source)
     // 3. select the required data and load into the list
@@ -81,40 +87,73 @@ class _HomeState extends State<Home> {
     //   data = list;
     // });
 
-    print('the page value is $pageValue');
+    // ------------------Fetching data from api using http ---------------------
 
-    getMoreData = true;
+    // print('the page value is $pageValue');
 
-    final response = await http.get(
-        Uri.parse(
-            'https://api.themoviedb.org/3/movie/popular?api_key=278fa03b46b62d7205f7078755eef745&language=en-US&page=$pageValue'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          // 'Accept': 'application/json',
-          // 'Authorization':
-          //     'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNzhmYTAzYjQ2YjYyZDcyMDVmNzA3ODc1NWVlZjc0NSIsInN1YiI6IjYxZDcwOWI1YmIyNjAyMDA1YjljMGU1NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.R8CYVLUkqVreDKEyVmfw084UZ7Ftov_XSm6CxmBFJzA',
-        });
-    // print('call garepaxi ko response $response');
-    if (response.statusCode == 200) {
-      final decodedPopularMovies = jsonDecode(response.body);
+    // final response = await http.get(
+    //     Uri.parse(
+    //         'https://api.themoviedb.org/3/movie/popular?api_key=278fa03b46b62d7205f7078755eef745&language=en-US&page=$pageValue'),
+    //     headers: <String, String>{
+    //       'Content-Type': 'application/json; charset=UTF-8',
+    // });
 
-      var decodedPopularMoviesResults = decodedPopularMovies['results'];
-      print(decodedPopularMoviesResults);
+    // ------------------------Fetching data using Dio--------------------------------
 
-      List<Results> list =
-          List.from(decodedPopularMoviesResults).map<Results>((e) {
-        e['poster_path'] = e['poster_path'] != ""
-            ? "https://image.tmdb.org/t/p/w500" + e['poster_path']
-            : "";
-        return Results.fromJson(e);
-      }).toList();
-      data.addAll(list);
-      setState(() {});
-      pageValue++;
-      getMoreData = false;
+    try {
+      // final Dio _dioMain = Dio(
+      //   BaseOptions(
+      //     baseUrl:
+      //         "https://api.themoviedb.org/3/movie/popular?api_key=278fa03b46b62d7205f7078755eef745&language=en-US&page=$pageValue",
+      //     method: "GET",
+      //     headers: {'Content-Type': 'application/json; charset=UTF-8'},
+
+      //     // connectTimeout: 5000,
+      //     // receiveTimeout: 3000,
+      //   ),
+      // )..interceptors.add(InterceptorsWrapper(onRequest:
+      //       (RequestOptions options, RequestInterceptorHandler handler) {
+      //     print('request response is ${options}${handler}');
+      //   }, onResponse: (Response response, ResponseInterceptorHandler handler) {
+      //     print('response response is ${response}${handler}');
+      //   }, onError: (DioError e, ErrorInterceptorHandler handler) {
+      //     print('error response is ${e}${handler}');
+      //   }));
+
+      // _dioMain
+
+      final response = await _dio.get(
+          'https://api.themoviedb.org/3/movie/popular?api_key=278fa03b46b62d7205f7078755eef745&language=en-US&page=$pageValue',
+          options: buildCacheOptions(const Duration(days: 7)));
+
+      // headers: <String, String>{
+      // 'Content-Type': 'application/json; charset=UTF-8',
+      // 'Accept': 'application/json',
+      // 'Authorization':
+      //     'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNzhmYTAzYjQ2YjYyZDcyMDVmNzA3ODc1NWVlZjc0NSIsInN1YiI6IjYxZDcwOWI1YmIyNjAyMDA1YjljMGU1NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.R8CYVLUkqVreDKEyVmfw084UZ7Ftov_XSm6CxmBFJzA',
+      // });
+      // print('call garepaxi ko response $response');
+
+      if (response.statusCode == 200) {
+        // options: buildCacheOptions(const Duration(days: 7)));
+
+        var decodedPopularMoviesResults = response.data['results'];
+        // print(decodedPopularMoviesResults);
+        List<Results> list =
+            List.from(decodedPopularMoviesResults).map<Results>((e) {
+          e['poster_path'] = e['poster_path'] != ""
+              ? "https://image.tmdb.org/t/p/w500" + e['poster_path']
+              : "";
+          return Results.fromJson(e);
+        }).toList();
+        data.addAll(list);
+        setState(() {});
+        pageValue++;
+        getMoreData = false;
+      }
+    } catch (e) {
+      print("Api fetching error $e");
     }
-    // .then((value) => print('value $value'))
-    // .catchError((onError) => print('onError $onError'));
   }
 
   @override

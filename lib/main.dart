@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:basic_app/Screens/biometrics_screen.dart';
 import "package:flutter/material.dart";
 import 'package:basic_app/Screens/authentication_screen.dart';
 import 'package:basic_app/Screens/detail_screen.dart';
@@ -12,11 +11,18 @@ import 'package:basic_app/Screens/tv_shows.dart';
 import 'package:basic_app/utilities/routes.dart';
 import 'package:basic_app/widgets/themes.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final appDocumentDirectory = await getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDirectory.path);
+  // Dio().interceptors.add(
+  //     DioCacheManager(CacheConfig(baseUrl: "https://api.themoviedb.org/3/"))
+  //         .interceptor);
   await Firebase.initializeApp();
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -49,9 +55,11 @@ class _MyAppState extends State<MyApp> {
 
       theme: Themes.lightThemeValue(),
 
-      home: widget.isLoggedIn ?? false
-          ? const Home()
-          : const AuthenticationScreen(),
+      home:
+          // const LocationScreen(),
+          widget.isLoggedIn ?? false
+              ? const Home()
+              : const AuthenticationScreen(),
 
       routes: <String, WidgetBuilder>{
         RoutesAvailable.authenticationRoute: (context) =>
@@ -65,6 +73,7 @@ class _MyAppState extends State<MyApp> {
             const PopularTvShows(),
         RoutesAvailable.detailsRoute: (context) => const DetailScreen(),
         RoutesAvailable.locationRoute: (context) => const LocationScreen(),
+        RoutesAvailable.biometricsRoute: (context) => const BiometricsScreen(),
       },
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:geocoding/geocoding.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -9,34 +9,64 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  var token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNzhmYTAzYjQ2YjYyZDcyMDVmNzA3ODc1NWVlZjc0NSIsInN1YiI6IjYxZDcwOWI1YmIyNjAyMDA1YjljMGU1NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.R8CYVLUkqVreDKEyVmfw084UZ7Ftov_XSm6CxmBFJzA';
-
-  popularMovies() async {
-    final response = await http.get(Uri.https('api.themoviedb.org',
-        '/3/movie/popular?api_key=278fa03b46b62d7205f7078755eef745&language=en-US&page=1'));
-    // headers: {
-    //   'Content-Type': 'application/json',
-    //   'Accept': 'application/json',
-    //   'Authorization': 'Bearer $token',
-    // });
-    print('call garepaxi ko response $response');
-    // .then((value) => print('value $value'))
-    // .catchError((onError) => print('onError $onError'));
-  }
+  String _stringValue = "";
 
   @override
   void initState() {
     super.initState();
-    print("called on statefulwidget");
-    popularMovies();
-    // futureAlbum = fetchAlbum();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
+    return Scaffold(
+      // appBar: AppBar(),
+      body: SafeArea(
+          child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _stringValue = value;
+                });
+              },
+              autofocus: true,
+              decoration: InputDecoration(
+                prefixIcon: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                  ),
+                  onPressed: () {
+                    if (_stringValue == "") {
+                      Navigator.pop(context);
+                    } else {
+                      setState(() {
+                        _stringValue = "";
+                      });
+                    }
+                  },
+                ),
+                suffixIcon: IconButton(
+                  icon: const Icon(
+                    Icons.search,
+                  ),
+                  onPressed: () async {
+                    // try {
+                    //   searchedAddress = await locationFromAddress(_stringValue);
+                    //   print("the searched address is $searchedAddress[0]");
+                    //   addMarkers(searchedAddress[0]);
+                    // } catch (e) {
+                    //   print('error while fetching coordinates $e');
+                    // }
+                  },
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 9, horizontal: 2),
+                fillColor: Colors.grey[300],
+                filled: true,
+                hintText: "Search",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                ),
+              ))),
     );
   }
 }

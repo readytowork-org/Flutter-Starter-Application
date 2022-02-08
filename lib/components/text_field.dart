@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class TextFieldComponent extends StatefulWidget {
   final Function onChanged;
-  final String labelText;
+  final String? labelText;
   final String hintText;
   final bool? obscureText;
   final Widget? prefixIcon;
@@ -11,7 +11,7 @@ class TextFieldComponent extends StatefulWidget {
   const TextFieldComponent({
     Key? key,
     required this.onChanged,
-    required this.labelText,
+    this.labelText,
     required this.hintText,
     this.obscureText,
     this.prefixIcon,

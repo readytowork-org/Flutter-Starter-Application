@@ -7,4 +7,5 @@ class RoutesAvailable {
   static const populatTvShowsRoute = '/popularTvShows';
   static const detailsRoute = '/details';
   static const locationRoute = '/location';
+  static const biometricsRoute = '/biometricsSetup';
 }

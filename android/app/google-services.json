@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "142784056602",
+    "firebase_url": "https://movies-hub-338509-default-rtdb.firebaseio.com",
     "project_id": "movies-hub-338509",
     "storage_bucket": "movies-hub-338509.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "142784056602-3v5hm8ncgip2ed203bisbnibrdfgo9j7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.basic_app",
+            "certificate_hash": "675d1f2de66ac96121abb84190eadb78eddcc820"
+          }
+        },
         {
           "client_id": "142784056602-00s20ovui188qk4b50n2dj1v0bsu91ek.apps.googleusercontent.com",
           "client_type": 3
@@ -29,6 +38,13 @@
             {
               "client_id": "142784056602-00s20ovui188qk4b50n2dj1v0bsu91ek.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "142784056602-t7abj6hn52a6jmns0snl917aak0m72nv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.basicApp"
+              }
             }
           ]
         }

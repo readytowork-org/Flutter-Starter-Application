@@ -2,9 +2,11 @@ import 'package:basic_app/components/alert_dialog.dart';
 import 'package:basic_app/utilities/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,11 +19,32 @@ class DrawerList extends StatefulWidget {
 
 class _DrawerListState extends State<DrawerList> {
   // final String _image = "";
+  final LocalAuthentication auth = LocalAuthentication();
+  List<BiometricType> availableBiometrics = [];
 
   @override
   void initState() {
     super.initState();
+    checkBiometrics();
   }
+
+  Future<void> checkBiometrics() async {
+    bool hasbiometrics = await auth.canCheckBiometrics;
+    await auth.getAvailableBiometrics().then((response) {
+      setState(() {
+        availableBiometrics = response;
+      });
+    }).catchError((error) => print(error));
+  }
+
+  // @override
+  // void didChangeDependencies() async {
+  //   super.d();
+  //   var box = await Hive.openBox('myBox');
+  //   setState(() {
+  //     showTrailingIcon = box.get('mainValue') ?? false;
+  //   });
+  // }
 
   Future<void> imgFromCamera() async {
     try {
@@ -161,7 +184,7 @@ class _DrawerListState extends State<DrawerList> {
               ),
               title: Text(
                 'Upcoming Movies',
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
               tileColor: Colors.red,
             ),
@@ -170,6 +193,7 @@ class _DrawerListState extends State<DrawerList> {
               color: Colors.white,
             ),
             // const SizedBox(height: 10),
+
             ListTile(
               onTap: () {
                 Navigator.pop(context);
@@ -190,15 +214,58 @@ class _DrawerListState extends State<DrawerList> {
               thickness: 1,
               color: Colors.white,
             ),
-            const ListTile(
-              leading: Icon(
-                Icons.settings,
+            ListTile(
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  // barrierDismissible: false, // user must tap button!
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text(
+                        'Available Biometrics',
+                        textAlign: TextAlign.center,
+                      ),
+                      content: SingleChildScrollView(
+                        child: SizedBox(
+                          width: double.maxFinite,
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: availableBiometrics.length,
+                              itemBuilder: (BuildContext context, int index) =>
+                                  // availableBiometrics.isEmpty
+                                  //     ? const CupertinoActivityIndicator()
+                                  //     :
+                                  ListTile(
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      Navigator.pushNamed(context,
+                                          RoutesAvailable.biometricsRoute);
+                                    },
+                                    leading: const Icon(
+                                      Icons.fingerprint,
+                                      size: 35.0,
+                                    ),
+                                    title: Text(
+                                      availableBiometrics[index]
+                                          .name
+                                          .toUpperCase(),
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                  )),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              leading: const Icon(
+                Icons.security,
                 color: Colors.white,
                 size: 24.0,
               ),
-              title: Text(
-                'Settings',
-                style: TextStyle(color: Colors.white, fontSize: 20),
+              title: const Text(
+                'Biometric Authentication',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
               tileColor: Colors.red,
             ),
@@ -211,17 +278,25 @@ class _DrawerListState extends State<DrawerList> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.setBool('loggedInValue', false);
                 String? loggedInUsing = prefs.getString("loggedInUsing");
-                Navigator.pop(context);
-                Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    RoutesAvailable.authenticationRoute,
-                    (Route<dynamic> route) => false);
                 if (loggedInUsing == "Facebook") {
                   print("Sign out from $loggedInUsing");
                   await FacebookAuth.instance.logOut();
+                  Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      RoutesAvailable.authenticationRoute,
+                      (Route<dynamic> route) => false);
                 } else if (loggedInUsing == "Google") {
                   print("Sign out from $loggedInUsing");
                   await GoogleSignIn().signOut();
+                  Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      RoutesAvailable.authenticationRoute,
+                      (Route<dynamic> route) => false);
+                } else {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      RoutesAvailable.authenticationRoute,
+                      (Route<dynamic> route) => false);
                 }
               },
               leading: const Icon(

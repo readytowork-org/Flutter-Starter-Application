@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hive/hive.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,7 +23,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool showPassword = false;
   bool setLoading = false;
+  bool enableBiometricsValue = false;
+
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    datafromHiveBox();
+  }
+
+  Future<void> datafromHiveBox() async {
+    var box = await Hive.openBox('mainBox');
+    setState(() {
+      enableBiometricsValue = box.get('biometricsValue') ?? false;
+    });
+  }
 
   onTapLoginButton() async {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -165,6 +182,63 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontSize: 18,
                       fontColor: Colors.white,
                     ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    enableBiometricsValue
+                        ? InkWell(
+                            onTap: () async {
+                              bool isBiometricsSupported =
+                                  await LocalAuthentication()
+                                      .canCheckBiometrics;
+                              print(isBiometricsSupported);
+                              try {
+                                var isAuthenticated =
+                                    await LocalAuthentication().authenticate(
+                                        localizedReason:
+                                            'Authenticate with your biometrics',
+                                        useErrorDialogs: true,
+                                        stickyAuth: true,
+                                        biometricOnly: true);
+                                if (isAuthenticated) {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  prefs.setBool('loggedInValue', true);
+                                  Navigator.pushNamedAndRemoveUntil(
+                                      context,
+                                      RoutesAvailable.homeRoute,
+                                      (Route<dynamic> route) => false);
+                                }
+                              } on PlatformException catch (e) {
+                                // display this error if you want
+                                print(e.message);
+                              }
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.fingerprint,
+                                  size: 25,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Tap to Login with Biometrics",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        : Container(),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     const Text(
                       "Forgot password?",
                       textAlign: TextAlign.center,
@@ -174,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(
-                      height: 40,
+                      height: 30,
                     ),
                     ButtonComponent(
                       onTap: () => Navigator.pushNamed(

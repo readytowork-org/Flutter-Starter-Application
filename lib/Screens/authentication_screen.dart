@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationScreen extends StatefulWidget {
@@ -16,9 +17,19 @@ class AuthenticationScreen extends StatefulWidget {
 }
 
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
+  bool enableBiometricsValue = false;
+
   @override
   void initState() {
     super.initState();
+    datafromHiveBox();
+  }
+
+  Future<void> datafromHiveBox() async {
+    var box = await Hive.openBox('mainBox');
+    setState(() {
+      enableBiometricsValue = box.get('biometricsValue') ?? false;
+    });
   }
 
   Future<void> signInFB() async {
@@ -136,7 +147,9 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                     Navigator.pushNamed(context, RoutesAvailable.loginRoute);
                   },
                   image: 'assets/images/email.png',
-                  textValue: "Login using Email",
+                  textValue: enableBiometricsValue
+                      ? "Login using Email or Biometrics"
+                      : "Login using Email ",
                 ),
                 const SizedBox(
                   height: 20,
@@ -152,7 +165,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   image: 'assets/images/gmail.jpg',
                   textValue: "Login using Gmail",
                   onPress: signInWithGoogle,
-                )
+                ),
               ],
             ),
           ),

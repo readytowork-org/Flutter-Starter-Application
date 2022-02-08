@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:basic_app/components/alert_dialog.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:basic_app/utilities/routes.dart';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -17,10 +18,15 @@ class LocationScreen extends StatefulWidget {
 
 class _LocationScreenState extends State<LocationScreen> {
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
+  final TextEditingController _filter = TextEditingController();
+  bool mainTitle = true;
 
   List<Marker> markerList = [];
-
   List<Placemark> addresses = [];
+
+  Map<String, dynamic> initialLocation = {};
+  // String _stringValue = "";
+  List searchedAddress = [];
   // late Position _position;
 
   final CameraPosition cameraPosition = const CameraPosition(
@@ -34,7 +40,27 @@ class _LocationScreenState extends State<LocationScreen> {
     userPosition();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _filter.dispose();
+  }
+
+  // Future<String> getRouteCoordinates(LatLng l1, LatLng l2) async {
+  //   String url =
+  //       "https://maps.googleapis.com/maps/api/directions/json?origin=${l1.latitude},${l1.longitude}&destination=${l2.latitude},${l2.longitude}&key=$apiKey";
+  //   http.Response response = await http.get(url);
+  //   Map values = jsonDecode(response.body);
+  //   return values["routes"][0]["overview_polyline"]["points"];
+  // }
+
   animateCamera(locationValue) async {
+    print('${locationValue.latitude} ${locationValue.longitude}');
     //set caera position to userlocation
     CameraPosition cameraPosition = CameraPosition(
       target: LatLng(locationValue.latitude, locationValue.longitude),
@@ -78,33 +104,33 @@ class _LocationScreenState extends State<LocationScreen> {
       addresses = locationDetails;
       animateCamera(myLocation);
 
-//modal at bottom of screen
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Container(
-              decoration: const BoxDecoration(color: Colors.white),
-              margin: const EdgeInsets.all(10.0),
-              padding: const EdgeInsets.all(10.0),
-              child: Expanded(
-                child: Wrap(
-                  children: [
-                    const Text(
-                      "User Location is",
-                      style: TextStyle(fontSize: 17),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      "${locationDetails[0].name}, ${locationDetails[0].locality}, ${locationDetails[0].subAdministrativeArea}, ${locationDetails[0].country}",
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          });
+      // modal at bottom of screen
+      // showDialog(
+      //     context: context,
+      //     builder: (BuildContext context) {
+      //       return Container(
+      //         decoration: const BoxDecoration(color: Colors.white),
+      //         margin: const EdgeInsets.all(10.0),
+      //         padding: const EdgeInsets.all(10.0),
+      //         child: Expanded(
+      //           child: Wrap(
+      //             children: [
+      //               const Text(
+      //                 "User Location is",
+      //                 style: TextStyle(fontSize: 17),
+      //               ),
+      //               const SizedBox(
+      //                 height: 10,
+      //               ),
+      //               Text(
+      //                 "${locationDetails[0].name}, ${locationDetails[0].locality}, ${locationDetails[0].subAdministrativeArea}, ${locationDetails[0].country}",
+      //                 style: const TextStyle(fontSize: 20),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       );
+      //     });
     } else {
       ShowDialogBox.dialogBoxes(
         context: context,
@@ -123,21 +149,12 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   addMarkers(argument) async {
-    print(argument);
+    print(
+        "in add markers ${argument} ${argument.latitude} ${argument.longitude}");
 
     print(markerList);
 
     animateCamera(argument);
-
-    // CameraPosition cameraPosition = CameraPosition(
-    //   target: argument,
-    //   zoom: 14.4746,
-    // );
-
-    // final GoogleMapController newMapController =
-    //     await _controllerGoogleMap.future;
-    // newMapController
-    //     .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
     Marker userlocation = Marker(
       draggable: true,
@@ -146,18 +163,90 @@ class _LocationScreenState extends State<LocationScreen> {
         // print(newPosition.longitude);/
       }),
       markerId: MarkerId(argument.toString()),
-      position: argument,
-      infoWindow: const InfoWindow(title: 'Business 2'),
+      position: LatLng(argument.latitude, argument.longitude),
+      infoWindow: InfoWindow(
+          title:
+              ' ${argument.latitude}, ${argument.longitude} \nGet Directions'),
       icon: BitmapDescriptor.defaultMarker,
     );
-    markerList.add(userlocation);
-    setState(() {});
+
+    setState(() {
+      markerList = [userlocation];
+    });
   }
+
+  AppBar buildBar(BuildContext context) {
+    return AppBar(
+        centerTitle: false,
+        title: const Text("Location"),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, RoutesAvailable.searchRoute);
+              // setState(() {
+              //   mainTitle = false;
+              // });
+            },
+            icon: const Icon(Icons.search),
+            padding: const EdgeInsets.only(right: 15),
+          )
+        ]);
+  }
+
+  // _appBarTitle() {
+  //   if (!mainTitle) {
+  //     return TextField(
+  //         onChanged: (value) {
+  //           setState(() {
+  //             _stringValue = value;
+  //           });
+  //         },
+  //         autofocus: true,
+  //         decoration: InputDecoration(
+  //           prefixIcon: IconButton(
+  //             icon: const Icon(
+  //               Icons.close,
+  //             ),
+  //             onPressed: () {
+  //               setState(() {
+  //                 mainTitle = true;
+  //               });
+  //             },
+  //           ),
+  //           suffixIcon: IconButton(
+  //             icon: const Icon(
+  //               Icons.search,
+  //             ),
+  //             onPressed: () async {
+  //               try {
+  //                 searchedAddress = await locationFromAddress(_stringValue);
+  //                 print("the searched address is $searchedAddress[0]");
+  //                 addMarkers(searchedAddress[0]);
+  //               } catch (e) {
+  //                 print('error while fetching coordinates $e');
+  //               }
+  //             },
+  //           ),
+  //           contentPadding:
+  //               const EdgeInsets.symmetric(vertical: 9, horizontal: 2),
+  //           fillColor: Colors.grey[300],
+  //           filled: true,
+  //           hintText: "Search",
+  //           border: OutlineInputBorder(
+  //             borderRadius: BorderRadius.circular(5.0),
+  //             borderSide: const BorderSide(color: Colors.white, width: 2.0),
+  //           ),
+  //         ));
+  //   } else {
+  //     _filter.clear();
+  //     return const Text("Location");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Location")),
+        appBar: buildBar(context),
         body:
             // ? const Center(child: CupertinoActivityIndicator())
             // :
@@ -166,7 +255,7 @@ class _LocationScreenState extends State<LocationScreen> {
           initialCameraPosition: cameraPosition,
           myLocationEnabled: true,
           zoomGesturesEnabled: true,
-          onLongPress: addMarkers,
+          // onLongPress: addMarkers,
           onMapCreated: (GoogleMapController googleMapController) {
             _controllerGoogleMap.complete(googleMapController);
           },
